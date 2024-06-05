@@ -7,11 +7,10 @@ load_dotenv()
 
 api = NewsApiClient(api_key = '5cecce8e503d43faaeea7e2e96710466')
 
-data = api.get_everything(q='russia',
-                            sources='bbc-news,the-verge',
-                            language='en',
-                            sort_by='relevancy')
+data = api.get_everything(qintitle ='bjp',
+                            sort_by='relevancy',
+                            language='en')
 
-pprint(data['articles'][0]['title'])
-print('-------------------------------------------------------------------------------------')
-pprint(data['articles'][0:5])
+# pprint(data['articles'][0]['content'])
+# print('-------------------------------------------------------------------------------------')
+# pprint(data['articles'][0:5])
