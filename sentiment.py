@@ -1,3 +1,4 @@
+# sentiment.py
 import api
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import pandas as pd
@@ -13,7 +14,7 @@ df = df[df['description'].notna()]
 
 vader = SentimentIntensityAnalyzer()
 
-f= lambda content: vader.polarity_scores(content)['compound'] 
+f = lambda content: vader.polarity_scores(content)['compound']
 df['compound'] = df['content'].apply(f)
 
 # print(df.columns)
