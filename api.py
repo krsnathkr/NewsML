@@ -3,11 +3,16 @@ import os
 from pprint import pprint
 from newsapi import NewsApiClient
 from dotenv import load_dotenv
+import app
+
 load_dotenv()
+API_KEY = os.getenv('API_KEY')
 
-api = NewsApiClient(api_key = '5cecce8e503d43faaeea7e2e96710466')
+API_KEY = NewsApiClient(api_key = f'{API_KEY}')
 
-data = api.get_everything(qintitle ='bjp',
+q = app.q
+
+data = API_KEY.get_everything(qintitle = 'adani',
                             sort_by='relevancy',
                             language='en')
 
