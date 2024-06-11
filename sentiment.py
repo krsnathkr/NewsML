@@ -1,21 +1,21 @@
 # sentiment.py
-import api
-from nltk.sentiment.vader import SentimentIntensityAnalyzer
+
 import pandas as pd
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
-article_keys = api.data['articles'][0].keys()
+def analyze_sentiment(articles):
+    article_keys = articles[0].keys()
 
-# Creating DataFrame with all keys as columns
-df = pd.DataFrame(api.data['articles'], columns=article_keys)
+    # Creating DataFrame with all keys as columns
+    df = pd.DataFrame(articles, columns=article_keys)
 
-cols_to_remove = ['source', 'url', 'urlToImage', 'publishedAt']
-df = df.drop(cols_to_remove, axis=1)
-df = df[df['description'].notna()]
+    cols_to_remove = ['source', 'url', 'urlToImage', 'publishedAt']
+    df = df.drop(cols_to_remove, axis=1)
+    df = df[df['description'].notna()]
 
-vader = SentimentIntensityAnalyzer()
+    vader = SentimentIntensityAnalyzer()
 
-f = lambda content: vader.polarity_scores(content)['compound']
-df['compound'] = df['content'].apply(f)
+    f = lambda content: vader.polarity_scores(content)['compound']
+    df['compound'] = df['content'].apply(f)
 
-# print(df.columns)
-# print(df.head(5))
+    return df
