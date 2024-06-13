@@ -1,5 +1,3 @@
-# app.py
-
 import os
 import streamlit as st
 from dotenv import load_dotenv
@@ -49,8 +47,10 @@ if st.button('Get News'):
                 # Add a unique key for each button
                 button_key = f"recommend_btn_{i}"
                 if st.button(f"Recommend based on '{article['title']}'", key=button_key):
-                    st.session_state.recommendations[button_key] = get_recommendations(article['title'])
+                    recommendations = get_recommendations(article['title'])
+                    st.session_state.recommendations[button_key] = recommendations
                     st.write(f"Recommendations for {article['title']} generated")
+                    st.write(f"Generated Recommendations: {recommendations}")
 
                 # Check and display recommendations if they exist
                 if button_key in st.session_state.recommendations:
@@ -80,8 +80,10 @@ if selected_category:
                     
                     button_key = f"recommend_btn_category_{i}"
                     if st.button(f"Recommend based on '{article['title']}'", key=button_key):
-                        st.session_state.recommendations[button_key] = get_recommendations(article['title'])
+                        recommendations = get_recommendations(article['title'])
+                        st.session_state.recommendations[button_key] = recommendations
                         st.write(f"Recommendations for {article['title']} generated")
+                        st.write(f"Generated Recommendations: {recommendations}")
                     
                     if button_key in st.session_state.recommendations:
                         st.write("Recommended Articles:")
@@ -110,8 +112,10 @@ if country_name:
                     
                     button_key = f"recommend_btn_country_{i}"
                     if st.button(f"Recommend based on '{article['title']}'", key=button_key):
-                        st.session_state.recommendations[button_key] = get_recommendations(article['title'])
+                        recommendations = get_recommendations(article['title'])
+                        st.session_state.recommendations[button_key] = recommendations
                         st.write(f"Recommendations for {article['title']} generated")
+                        st.write(f"Generated Recommendations: {recommendations}")
                     
                     if button_key in st.session_state.recommendations:
                         st.write("Recommended Articles:")

@@ -1,5 +1,3 @@
-# model.py
-
 import pandas as pd
 from nltk.stem import PorterStemmer
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -27,7 +25,9 @@ def prepare_recommendation_system(df):
         sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
         sim_scores = sim_scores[1:11]
         news_indices = [i[0] for i in sim_scores]
-        return df['title'].iloc[news_indices].tolist()
+        recommended_titles = df['title'].iloc[news_indices].tolist()
+        print(f"Recommendations for '{title}': {recommended_titles}")  # Debug statement
+        return recommended_titles
 
     # Step 4: Stem content for CountVectorizer
     df['tags'] = df['content'].copy()
@@ -49,6 +49,7 @@ def prepare_recommendation_system(df):
         index = df[df['title'] == news].index[0]
         distances = sorted(list(enumerate(similarity[index])), reverse=True, key=lambda x: x[1])
         recommended_titles = [df.iloc[i[0]].title for i in distances[1:6]]
+        print(f"Recommendations for '{news}': {recommended_titles}")  # Debug statement
         return recommended_titles
 
     return get_recommendations, recommend
