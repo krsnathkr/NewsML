@@ -15,15 +15,22 @@ def prepare_recommendation_system(df):
 
     def get_recommendations(title):
         if title not in indices:
-            return ["Title not found"]
+            return [{"title": "Title not found", "content": "", "url": ""}]
         
         idx = indices[title]
         sim_scores = list(enumerate(cosine_sim[idx]))
         sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
         sim_scores = sim_scores[1:11]
         news_indices = [i[0] for i in sim_scores]
-        recommended_titles = df['title'].iloc[news_indices].tolist()
-        return recommended_titles
+
+        # Ensure 'url' field is included
+        if 'url' not in df.columns:
+            df['url'] = None
+        
+        recommendations = df.iloc[news_indices][['title', 'content', 'url']].to_dict('records')
+        for rec in recommendations:
+            rec['content'] = rec['content'][:200] + '...'  # Limit content to first few lines
+        return recommendations
 
     df['tags'] = df['content'].copy()
     ps = PorterStemmer()
@@ -39,11 +46,18 @@ def prepare_recommendation_system(df):
 
     def recommend(news):
         if news not in df['title'].values:
-            return ["Title not found"]
+            return [{"title": "Title not found", "content": "", "url": ""}]
         
         index = df[df['title'] == news].index[0]
         distances = sorted(list(enumerate(similarity[index])), reverse=True, key=lambda x: x[1])
-        recommended_titles = [df.iloc[i[0]].title for i in distances[1:6]]
-        return recommended_titles
+        
+        # Ensure 'url' field is included
+        if 'url' not in df.columns:
+            df['url'] = None
+        
+        recommendations = df.iloc[[i[0] for i in distances[1:6]]][['title', 'content', 'url']].to_dict('records')
+        for rec in recommendations:
+            rec['content'] = rec['content'][:200] + '...'  # Limit content to first few lines
+        return recommendations
 
     return get_recommendations, recommend
