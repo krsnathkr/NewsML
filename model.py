@@ -5,15 +5,12 @@ from sklearn.metrics.pairwise import linear_kernel, cosine_similarity
 from sklearn.feature_extraction.text import CountVectorizer
 
 def prepare_recommendation_system(df):
-    # Step 1: TF-IDF Vectorization
     tfidf = TfidfVectorizer(stop_words='english')
     df['content'] = df['content'].fillna('')
     tfidf_matrix = tfidf.fit_transform(df['content'])
 
-    # Step 2: Compute Cosine Similarity
     cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
 
-    # Step 3: Create a Series for article titles
     indices = pd.Series(df.index, index=df['title']).drop_duplicates()
 
     def get_recommendations(title):
@@ -26,10 +23,8 @@ def prepare_recommendation_system(df):
         sim_scores = sim_scores[1:11]
         news_indices = [i[0] for i in sim_scores]
         recommended_titles = df['title'].iloc[news_indices].tolist()
-        print(f"Recommendations for '{title}': {recommended_titles}")  # Debug statement
         return recommended_titles
 
-    # Step 4: Stem content for CountVectorizer
     df['tags'] = df['content'].copy()
     ps = PorterStemmer()
 
@@ -49,7 +44,6 @@ def prepare_recommendation_system(df):
         index = df[df['title'] == news].index[0]
         distances = sorted(list(enumerate(similarity[index])), reverse=True, key=lambda x: x[1])
         recommended_titles = [df.iloc[i[0]].title for i in distances[1:6]]
-        print(f"Recommendations for '{news}': {recommended_titles}")  # Debug statement
         return recommended_titles
 
     return get_recommendations, recommend

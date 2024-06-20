@@ -1,5 +1,3 @@
-# api.py
-
 import os
 from newsapi import NewsApiClient
 from dotenv import load_dotenv

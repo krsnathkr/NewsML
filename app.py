@@ -29,34 +29,42 @@ def fetch_and_analyze_news(query):
 if 'recommendations' not in st.session_state:
     st.session_state.recommendations = {}
 
+def display_articles(articles, df):
+    titles = []
+    for i, article in enumerate(articles):
+        st.header(article['title'])
+        titles.append(article['title'])
+
+        # Check if the title exists in the DataFrame
+        if df[df['title'] == article['title']].empty:
+            st.subheader("Sentiment Score: Not Available")
+        else:
+            sentiment_score = df.loc[df['title'] == article['title'], 'compound'].values[0]
+            st.subheader(f"Sentiment Score: {sentiment_score}")
+
+        st.write(article['description'])
+        st.write(f"[Read more]({article['url']})")
+    
+    return titles
+
+# Get and display recommendations based on selected article
+def show_recommendations(df, selected_article):
+    get_recommendations, _ = model.prepare_recommendation_system(df)
+    recommendations = get_recommendations(selected_article)
+    st.write("Recommended Articles:")
+    for rec in recommendations:
+        st.write(rec)
+
 if st.button('Get News'):
     if query:
         articles, df = fetch_and_analyze_news(query)
-        if articles and not df.empty:
-            # Prepare the recommendation system with the sentiment-analyzed data
-            get_recommendations, recommend = model.prepare_recommendation_system(df)
-
-            # Display articles
-            for i, article in enumerate(articles):
-                st.header(article['title'])
-                sentiment_score = df.loc[df['title'] == article['title'], 'compound'].values[0]
-                st.subheader(f"Sentiment Score: {sentiment_score}")
-                st.write(article['description'])
-                st.write(f"[Read more]({article['url']})")
-
-                # Add a unique key for each button
-                button_key = f"recommend_btn_{i}"
-                if st.button(f"Recommend based on '{article['title']}'", key=button_key):
-                    recommendations = get_recommendations(article['title'])
-                    st.session_state.recommendations[button_key] = recommendations
-                    st.write(f"Recommendations for {article['title']} generated")
-                    st.write(f"Generated Recommendations: {recommendations}")
-
-                # Check and display recommendations if they exist
-                if button_key in st.session_state.recommendations:
-                    st.write("Recommended Articles:")
-                    for rec in st.session_state.recommendations[button_key]:
-                        st.write(rec)
+        if articles and df is not None and not df.empty:
+            titles = display_articles(articles, df)
+            
+            # Add dropdown to select article for recommendations
+            selected_article = st.selectbox("Select an article for recommendations", titles)
+            if selected_article:
+                show_recommendations(df, selected_article)
 
 st.sidebar.title('Choose News Category')
 categories = ['Business', 'Entertainment', 'General', 'Health', 'Science', 'Sports', 'Technology']
@@ -66,29 +74,13 @@ if selected_category:
         category_articles = api.fetch_news(selected_category)
         if category_articles:
             df = sentiment.analyze_sentiment(category_articles)
-            
             if not df.empty:
-                # Prepare the recommendation system with the sentiment-analyzed data
-                get_recommendations, recommend = model.prepare_recommendation_system(df)
-
-                for i, article in enumerate(category_articles):
-                    st.header(article['title'])
-                    sentiment_score = df.loc[df['title'] == article['title'], 'compound'].values[0]
-                    st.subheader(f"Sentiment Score: {sentiment_score}")
-                    st.write(article['description'])
-                    st.write(f"[Read more]({article['url']})")
-                    
-                    button_key = f"recommend_btn_category_{i}"
-                    if st.button(f"Recommend based on '{article['title']}'", key=button_key):
-                        recommendations = get_recommendations(article['title'])
-                        st.session_state.recommendations[button_key] = recommendations
-                        st.write(f"Recommendations for {article['title']} generated")
-                        st.write(f"Generated Recommendations: {recommendations}")
-                    
-                    if button_key in st.session_state.recommendations:
-                        st.write("Recommended Articles:")
-                        for rec in st.session_state.recommendations[button_key]:
-                            st.write(rec)
+                titles = display_articles(category_articles, df)
+                
+                # Add dropdown to select article for recommendations
+                selected_article = st.selectbox("Select an article for recommendations", titles, key='category_select')
+                if selected_article:
+                    show_recommendations(df, selected_article)
 
 st.sidebar.title('Choose Country')
 country_name = st.sidebar.text_input('Enter Country Name')
@@ -98,26 +90,10 @@ if country_name:
         country_articles = api.fetch_news(country_code)
         if country_articles:
             df = sentiment.analyze_sentiment(country_articles)
-            
             if not df.empty:
-                # Prepare the recommendation system with the sentiment-analyzed data
-                get_recommendations, recommend = model.prepare_recommendation_system(df)
-
-                for i, article in enumerate(country_articles):
-                    st.header(article['title'])
-                    sentiment_score = df.loc[df['title'] == article['title'], 'compound'].values[0]
-                    st.subheader(f"Sentiment Score: {sentiment_score}")
-                    st.write(article['description'])
-                    st.write(f"[Read more]({article['url']})")
-                    
-                    button_key = f"recommend_btn_country_{i}"
-                    if st.button(f"Recommend based on '{article['title']}'", key=button_key):
-                        recommendations = get_recommendations(article['title'])
-                        st.session_state.recommendations[button_key] = recommendations
-                        st.write(f"Recommendations for {article['title']} generated")
-                        st.write(f"Generated Recommendations: {recommendations}")
-                    
-                    if button_key in st.session_state.recommendations:
-                        st.write("Recommended Articles:")
-                        for rec in st.session_state.recommendations[button_key]:
-                            st.write(rec)
+                titles = display_articles(country_articles, df)
+                
+                # Add dropdown to select article for recommendations
+                selected_article = st.selectbox("Select an article for recommendations", titles, key='country_select')
+                if selected_article:
+                    show_recommendations(df, selected_article)
